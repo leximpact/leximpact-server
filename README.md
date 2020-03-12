@@ -4,17 +4,24 @@
 LexImpact allows civil servants, policy makers and citizens to simulate the _ex ante_ impact of a reform to a country's tax-benefit system.
 * [Call for candidates (FR)](https://entrepreneur-interet-general.etalab.gouv.fr/defis/2019/leximpact.html)
 * [Elevator pitch (FR)](https://beta.gouv.fr/startups/leximpact.html)
-* [LexImpact](https://leximpact.an.fr)
+* [LexImpact application](https://leximpact.an.fr)
+
+This is the repository for LexImpact back-end code.
+
+LexImpact application has two main components:
+- [leximpact-server](https://github.com/betagouv/leximpact-server/): Python interface using [OpenFisca](https://openfisca.org/en/) and providing a web API that answers requests on the impact of tax law changes
+- [leximpact-client](https://github.com/betagouv/leximpact-client/): web interface calling the web API and providing a web site allowing the users to see the results of the API (e.g. LexImpact front-end)
+
 
 ## [FR] Introduction
 LexImpact permet aux administrations, aux parlementaires et à la société civile de simuler l'impact _ex ante_ des réformes au système socio-fiscal.
 * [Appels à candidatures](https://entrepreneur-interet-general.etalab.gouv.fr/defis/2019/leximpact.html)
 * [Fiche produit](https://beta.gouv.fr/startups/leximpact.html)
-* [LexImpact](https://leximpact.an.fr)
+* [Application LexImpact](https://leximpact.an.fr)
 
-Leximpact est constitué de deux parties :
-- [Leximpact-server](https://github.com/betagouv/leximpact-server/) : interface en python utilisant openfisca permettant de mettre en place une API répondant à des questions sur l'impact de modifications de la loi fiscale
-- [Leximpact-client](https://github.com/betagouv/leximpact-client/) : interface web communiquant avec l'API qui met à disposition des usagers un site web permettant de visulaliser les résultats des calculs de l'API
+LexImpact est constitué de deux parties :
+- [leximpact-server](https://github.com/betagouv/leximpact-server/) : interface en Python utilisant [OpenFisca](https://openfisca.org/fr/) permettant de mettre en place une API web répondant à des questions sur l'impact de modifications de la loi fiscale
+- [leximpact-client](https://github.com/betagouv/leximpact-client/) : interface web communiquant avec l'API web qui met à disposition des usagers un site web permettant de visulaliser les résultats des calculs de l'API
 
 ## Installation
 
