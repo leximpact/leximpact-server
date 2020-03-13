@@ -2,25 +2,30 @@
 
 ## [EN] Introduction
 LexImpact allows civil servants, policy makers and citizens to simulate the _ex ante_ impact of a reform to a country's tax-benefit system.
+
+* [LexImpact application](https://leximpact.an.fr)
 * [Call for candidates (FR)](https://entrepreneur-interet-general.etalab.gouv.fr/defis/2019/leximpact.html)
 * [Elevator pitch (FR)](https://beta.gouv.fr/startups/leximpact.html)
-* [LexImpact application](https://leximpact.an.fr)
+
 
 This is the repository for LexImpact back-end code.
 
 LexImpact application has two main components:
-- [leximpact-server](https://github.com/betagouv/leximpact-server/): Python interface using [OpenFisca](https://openfisca.org/en/) and providing a web API that answers requests on the impact of tax law changes
+- [leximpact-server](https://github.com/betagouv/leximpact-server/), this repository: Python interface using [OpenFisca](https://openfisca.org/en/) and providing a web API that answers requests on the impact of tax law changes
 - [leximpact-client](https://github.com/betagouv/leximpact-client/): web interface calling the web API and providing a web site allowing the users to see the results of the API (e.g. LexImpact front-end)
 
 
 ## [FR] Introduction
 LexImpact permet aux administrations, aux parlementaires et à la société civile de simuler l'impact _ex ante_ des réformes au système socio-fiscal.
+
+* [Application LexImpact](https://leximpact.an.fr)
 * [Appels à candidatures](https://entrepreneur-interet-general.etalab.gouv.fr/defis/2019/leximpact.html)
 * [Fiche produit](https://beta.gouv.fr/startups/leximpact.html)
-* [Application LexImpact](https://leximpact.an.fr)
+
+Ceci est le dépôt de code du back-end LexImpact.
 
 LexImpact est constitué de deux parties :
-- [leximpact-server](https://github.com/betagouv/leximpact-server/) : interface en Python utilisant [OpenFisca](https://openfisca.org/fr/) permettant de mettre en place une API web répondant à des questions sur l'impact de modifications de la loi fiscale
+- [leximpact-server](https://github.com/betagouv/leximpact-server/), ce dépôt-ci : interface en Python utilisant [OpenFisca](https://openfisca.org/fr/) permettant de mettre en place une API web répondant à des questions sur l'impact de modifications de la loi fiscale
 - [leximpact-client](https://github.com/betagouv/leximpact-client/) : interface web communiquant avec l'API web qui met à disposition des usagers un site web permettant de visulaliser les résultats des calculs de l'API
 
 ## Installation
@@ -62,28 +67,29 @@ pyenv activate leximpact-server-3.7.3
 
 Le  _virtualenv_ **leximpact-server** sera alors activé, c'est-à-dire que les commandes suivantes s'exécuteront directement dans l'environnement virtuel.
 
-Bravo :tada: Vous êtes prêt·e à installer LexImpact-Server !
+Bravo 🎉 Vous êtes prêt·e à installer LexImpact-Server !
 
 ### Installez LexImpact-Server
 
-Pour installer LexImpact-Server, dans votre fenêtre de terminal :
+Pour installer LexImpact-Server, voici la commande à exécuter dans votre fenêtre de terminal :
 
 ```sh
 make install
 ```
 
-ou sous Windows 
+ou sous Windows :
 
 ```sh
 pip install --editable .[dev]
 ```
+
+L'installation des librairies doit s'achever sans erreur avec les mots `Successfully installed (...)`.
 
 🎉 Félicitations LexImpact-Server est prêt à être utilisé !
 
 ## Lancez l'API Web LexImpact
 
 ### Fichier de configuration `.env`
-
 
 ℹ️ Uniquement nécessaire dans le cas où les données sur la population sont utilisées (fonctionnalité simpop). En l'absence d'utilisation de ces fonctionnalités (i.e. les endpoints auth et simpop), il devrait être possible de faire tourner Leximpact-server sans base de données ni fichier `.env` .
 
@@ -97,7 +103,7 @@ Pour lancer LexImpact-Server, vous devez tout d'abord créer un fichier de confi
 
 ### Base de données et migrations
 
-Pour créer la base de données, et exécuter toutes les migrations, dans votre fenêtre de terminal :
+Pour créer la base de données, et exécuter toutes les migrations, appliquer cette commande dans votre fenêtre de terminal :
 
 ```sh
 make migrate
@@ -105,19 +111,22 @@ make migrate
 
 ### Mode demo
 
-Pour lancer LexImpact-Server, dans votre fenêtre de terminal :
+Pour lancer l'API web LexImpact-Server en local, voici la commande à exécuter dans votre fenêtre de terminal :
 
 ```sh
 make run
 ```
-
-Pour s'assurer que tout marche bien :
+Elle est désormais disponible à cette adresse : `http://localhost:5000/`
+Pour s'assurer que tout marche bien, ouvrir une autre fenêtre de terminal et exécuter ce test qui transmet une requête à l'API :
 
 ```sh
 ./tests/server/stress/test.sh
 ```
 
+L'API web répond répond alors à la requête et transmet le résultat sous forme de dictionnaire `{ ... }`.
+
 🎉 Félicitations LexImpact-Server est en train de tourner !
+
 
 ### Mode agrégats de population
 
