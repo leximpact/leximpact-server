@@ -112,13 +112,12 @@ make migrate
 ### Mode demo
 
 Pour lancer l'API web LexImpact-Server en local, voici la commande à exécuter dans votre fenêtre de terminal :
-
 ```sh
 make run
 ```
-Elle est désormais disponible à cette adresse : `http://localhost:5000/`
-Pour s'assurer que tout marche bien, ouvrir une autre fenêtre de terminal et exécuter ce test qui transmet une requête à l'API :
+L'API web est désormais disponible à cette adresse : `http://localhost:5000/`
 
+Pour s'assurer que tout marche bien, ouvrir une autre fenêtre de terminal et exécuter ce test qui transmet une requête à l'API :
 ```sh
 ./tests/server/stress/test.sh
 ```
@@ -141,11 +140,11 @@ Pour ce faire, modifiez le fichier suivant :
 version_beta_sans_graph_pop = False  # Au lieu de True par défaut
 ```
 
-_**Note :** les instructions supra vous sont fournies à caractère indicatif, l'équipe de développement LexImpact ne disposant pas à ce stade de véritable jeu de données._
+_**Note :** Les instructions supra vous sont fournies à caractère indicatif car elles dépendent des données. N'hésitez pas à contacter l'équipe de développement LexImpact pour de plus amples informations._
 
 🎉 Félicitations, vous-êtes en train de réformer le système socio-fiscal français !
 
-## Testing
+## Tests
 
 Pour faire tourner les tests de LexImpact-Server, exécutez la commande suivante :
 
@@ -167,7 +166,7 @@ make stress-test
 
 ## Style
 
-Ce dépôt adhère à un style de code précis, et on vous invite à le suivre pour que vos contributions soient intégrées au plus vite.
+Ce dépôt adhère à un style de code précis que nous vous invitons à suivre pour que vos contributions soient intégrées au plus vite.
 
 L'analyse de style est déjà exécutée avec `make test`. Pour le faire tourner de façon indépendante :
 
@@ -194,7 +193,6 @@ tee -a .git/hooks/pre-commit << END
 exec make format-style
 END
 ```
-
 
 ## Endpoints de l'API Web
 
