@@ -55,7 +55,7 @@ pyenv activate leximpact-server-3.7.3
 
 Le  _virtualenv_ **leximpact-server** sera alors activé, c'est-à-dire que les commandes suivantes s'exécuteront directement dans l'environnement virtuel.
 
-Bravo :tada: Vous êtes prêt·e à installer LexImpact-Server !
+Bravo 🎉 Vous êtes prêt·e à installer LexImpact-Server !
 
 ### Installez LexImpact-Server
 
