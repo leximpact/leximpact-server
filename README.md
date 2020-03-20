@@ -134,7 +134,7 @@ DATABASE_HOST="localhost" # Your database host
 DATABASE_PORT="5432" # Your database port (PostgreSQL default port: "5432")
 ```
 
-Par ailleurs, définit le préfixe des noms de bases de données dans le `.env` ; nous vous conseillons `leximpact` :
+Par ailleurs, définissons le préfixe des noms de bases de données dans le `.env` ; nous vous conseillons `leximpact` :
 ```py
 DATABASE_NAME="leximpact" # Your database name
 ```
@@ -149,6 +149,10 @@ De retour dans l'interprète `psql`, la commande `\list` vous affiche désormais
 
 - la base `leximpact_development`
 - la base `leximpact_test`
+
+> Pour se connecter à une base, utiliser la commande psql `\c nom_base`.
+> Pour lister les relations de la base où l'on est connecté, utiliser la commande psql `\dt`.
+> Afin d'afficher le contenu d'une table de la base où l'on est connecté, utiliser la commande SQL `select * from nom_table;`.
 
 ## Lancez l'API Web LexImpact
 
