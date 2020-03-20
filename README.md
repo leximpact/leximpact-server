@@ -30,14 +30,20 @@ LexImpact est constitué de deux parties :
 
 ## Installation
 
-Cette application requiert [Python 3.7](https://www.python.org/downloads/release/python-370/) et [pip](https://pip.pypa.io/en/stable/installing/).
+LexImpact dispose de deux modes : 
+- un mode cas-types simple (dit `open`) 
+- et un mode avancé nécessitant des données de population (dit `pop`)
+
+Les deux modes de cette application requièrent [Python 3.7](https://www.python.org/downloads/release/python-370/) et [pip](https://pip.pypa.io/en/stable/installing/).
 
 Plateformes supportées :
 - distributions GNU/Linux (en particulier Debian and Ubuntu) ;
 - Mac OS X ;
-- Windows;
+- Windows.
 
-Pour les autres OS : si vous pouvez exécuter Python et Numpy, l'installation de LexImpact-Server devrait fonctionner.
+Pour les autres OS : si vous pouvez exécuter Python et Numpy, l'installation du mode `open` devrait fonctionner.
+
+Le mode avancé nécessite une base de données relationnelle [PostgreSQL](https://www.postgresql.org). Pour l'installer, suivre les instructions de la [documentation officielle](https://www.postgresql.org/docs/).
 
 ### Installez un environnement virtuel
 
