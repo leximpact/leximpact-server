@@ -43,9 +43,9 @@ Plateformes supportées :
 
 Pour les autres OS : si vous pouvez exécuter Python et Numpy, l'installation du mode `open` devrait fonctionner.
 
-Le mode avancé nécessite une base de données relationnelle [PostgreSQL](https://www.postgresql.org). Pour l'installer, suivre les instructions de la [documentation officielle](https://www.postgresql.org/docs/).
+Le mode avancé nécessite une base de données relationnelle [PostgreSQL](https://www.postgresql.org).
 
-### Installez un environnement virtuel
+### Installez un environnement virtuel Python
 
 Nous recommandons l'utilisation d'un [environnement virtuel](https://virtualenv.pypa.io/en/stable/) (_virtualenv_) avec un gestionnaire de _virtualenv_ tel que [Pyenv](https://github.com/pyenv/pyenv).
 
@@ -91,17 +91,21 @@ pip install --editable .[dev]
 
 L'installation des librairies doit s'achever sans erreur avec les mots `Successfully installed (...)`.
 
+### Installer la base de données
+
+Afin d'installer la base de données nécessaire au mode avancé avec données de population, suivre les instructions de la [documentation officielle PostgreSQL](https://www.postgresql.org/docs/).
+
 🎉 Félicitations LexImpact-Server est prêt à être utilisé !
 
-## Lancez l'API Web LexImpact
-
-### Fichier de configuration `.env`
+## Configurez LexImpact
 
 ℹ️ Uniquement nécessaire dans le cas où les données sur la population sont utilisées (fonctionnalité simpop). En l'absence d'utilisation de ces fonctionnalités (i.e. les endpoints auth et simpop), il devrait être possible de faire tourner Leximpact-server sans base de données ni fichier `.env` .
 
-Pour lancer LexImpact-Server, vous devez tout d'abord créer un fichier de configuration `.env`. Le fichier `.env.example` contient un exemple de fichier de configuration `.env`, les champs y apparaissant sont :
+### Fichier de configuration `.env`
 
-- `DATABASE_*` : décrit la configuration de la base de données, leximpact-server doit avoit un accès à une base de données postgres lui permettant de se comporter correctement 
+Pour lancer LexImpact-Server, vous devez tout d'abord créer un fichier de configuration `.env` à la racine du dépôt. Le fichier `.env.example` contient un exemple de fichier de configuration `.env` et les champs y apparaissant sont :
+
+- `DATABASE_*` : décrit la configuration de la base de données, leximpact-server doit avoit un accès à une base de données PostgreSQL lui permettant de se comporter correctement 
 - `JWT_*` : Décrit les caractéristique du [JSON Web Token](https://jwt.io/). `JWT_SECRET` est une clef privée, `JWT_AUDIENCE` et `JWT_ISSUER` sont vérifiés quand le token est vérifié, mais peut être lu par quiconque a un token (car ces derniers ne sont pas chiffrés, mais juste signés par une clef privée) 
 - `MAILJET_*` : données d'authentification pour Mailjet, qui est utilisé pour envoyer les emails contenant les liens de connexion.
 - `DATA_PATH` :  Peut contenir un nom de fichier (.csv ou .h5) ou un nom de table dans la base SQL. Cette source de données sera importée. Un exemple de fichier fonctionnnant comme source de données situé dans le dépôt est `DCT.csv`. Des fonctions pour calibrer une source de données en fonction des données existantes de la population française sont disponibles dans le fichier sous `./scripts` (utilisés notamment dans le script `TransformData.py`) 
@@ -109,11 +113,44 @@ Pour lancer LexImpact-Server, vous devez tout d'abord créer un fichier de confi
 
 ### Base de données et migrations
 
-Pour créer la base de données, et exécuter toutes les migrations, appliquer cette commande dans votre fenêtre de terminal :
+S'il s'agit de votre première utilisation de la base PostgreSQL, il vous faut un compte utilisateur ayant les droits de création d'une base. Vous pouvez utiliser le compte par défaut nommé `postgres` et vous connecter avec cette commande :
+
+```sh
+psql --username=postgres
+```
+
+Vous entrez alors dans l'interprète `psql`. Afin d'afficher la liste des bases existantes, utiliser cette commande :
+
+```psql
+\list
+```
+
+Enregistrer cette configuration dans votre fichier `.env` comme suit :
+
+```py
+DATABASE_USER="postgres" # Your database username
+DATABASE_PASS="votre_mot_de_passe" # Your database password
+DATABASE_HOST="localhost" # Your database host
+DATABASE_PORT="5432" # Your database port (PostgreSQL default port: "5432")
+```
+
+Par ailleurs, définit le préfixe des noms de bases de données dans le `.env` ; nous vous conseillons `leximpact` :
+```py
+DATABASE_NAME="leximpact" # Your database name
+```
+
+Enfin, pour créer les bases de données, et exécuter toutes les migrations, appliquer cette commande dans une autre fenêtre de terminal shell :
 
 ```sh
 make migrate
 ```
+
+De retour dans l'interprète `psql`, la commande `\list` vous affiche désormais (selon votre `DATABASE_NAME`):
+
+- la base `leximpact_development`
+- la base `leximpact_test`
+
+## Lancez l'API Web LexImpact
 
 ### Mode demo
 
