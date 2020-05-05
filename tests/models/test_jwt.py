@@ -1,4 +1,6 @@
 from pytest import fixture  # type: ignore
+from os.path import isfile
+
 from models import (
     JWT,
     encode_jwt,
@@ -17,6 +19,7 @@ def email():
 
 @fixture
 def jwt():
+    assert isfile(".env"), "Ce test nécessite un fichier de configuration '.env' (voir .env dans README)."
     return JWT()
 
 
