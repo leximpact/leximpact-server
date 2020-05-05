@@ -11,19 +11,23 @@ from Simulation_engine.reforms import IncomeTaxReform
 from Simulation_engine.non_cached_variables import non_cached_variables
 from dotenv import load_dotenv
 
-load_dotenv(dotenv_path=".env")
-
 
 # Config
 
-data_path = os.getenv("DATA_PATH")  # type: Optional[str]
-nom_table_resultats_base = os.getenv("NAME_TABLE_BASE_RESULT")  # type: Optional[str]
-if nom_table_resultats_base is None:
-    nom_table_resultats_base = "base_results"
+if not os.path.isfile(".env"):
+    version_beta_sans_simu_pop = True  # Si pas de .env, on lance sans simpop
 
-version_beta_sans_simu_pop = (
-    data_path is None
-)  # Si DATA_PATH n'est pas renseigné dans .env, on lance sans simpop
+else:
+    load_dotenv(dotenv_path=".env")
+    data_path = os.getenv("DATA_PATH")  # type: Optional[str]
+    version_beta_sans_simu_pop = (
+        data_path is None
+    )  # Si DATA_PATH n'est pas renseigné dans .env, on lance sans simpop
+
+    nom_table_resultats_base = os.getenv("NAME_TABLE_BASE_RESULT")  # type: Optional[str]
+    if nom_table_resultats_base is None:
+        nom_table_resultats_base = "base_results"
+
 adjust_results = True
 
 #  PARTIE CONFIGURABLE PAR L'UTILISATEUR
@@ -462,33 +466,36 @@ print(
     len(DUMMY_DATA["idfoy"].unique()),
     "foyers fiscaux",
 )
-# Resultats sur la population du code existant et, lorsqu'il y en a un de configuré, du PLF.
-# Ne change jamais donc pas besoin de fatiguer l'ordi à calculer : ils sont mémorisés en base de données.
-# Test à implémenter : si les résultats de base sont là, ils correspondent aux résultats qu'on calculerait
-# sur le data_path
-resultats_de_base = from_postgres(nom_table_resultats_base)
-if (
-    resultats_de_base is not None
-):  # Si la table n'existe pas dans le schéma SQL (par exemple si la variable d'environnement comporte une erreur, ou si on n'a pas mis les données dans la base SQL du serveur), ce sera None et on les calcule nous même
-    print(
-        "table resultats de base used :",
-        nom_table_resultats_base,
-        len(resultats_de_base),
-        "rows",
-    )
-    resultats_de_base = resultats_de_base.set_index("idfoy").sort_index()
-else:
-    simulation_base_deciles = simulation(PERIOD, DUMMY_DATA, TBS)
-    resultats_de_base = simulation_base_deciles[1]["foyer_fiscal"][["wprm"]]
-    # precalcul cas de base sur la population pour le cache
-    simulations_reformes_par_defaut_deciles = {}
-    for nom_reforme in TBS_DEFAULT:
-        simulations_reformes_par_defaut_deciles[nom_reforme] = simulation(
-            PERIOD, DUMMY_DATA, TBS_DEFAULT[nom_reforme]
+
+if not version_beta_sans_simu_pop:
+    # Resultats sur la population du code existant et, lorsqu'il y en a un de configuré, du PLF.
+    # Ne change jamais donc pas besoin de fatiguer l'ordi à calculer : ils sont mémorisés en base de données.
+    # Test à implémenter : si les résultats de base sont là, ils correspondent aux résultats qu'on calculerait
+    # sur le data_path
+    resultats_de_base = from_postgres(nom_table_resultats_base)
+    if (
+        resultats_de_base is not None
+    ):  # Si la table n'existe pas dans le schéma SQL (par exemple si la variable d'environnement comporte une erreur, ou si on n'a pas mis les données dans la base SQL du serveur), ce sera None et on les calcule nous même
+        print(
+            "table resultats de base used :",
+            nom_table_resultats_base,
+            len(resultats_de_base),
+            "rows",
         )
-        resultats_de_base[nom_reforme] = simulations_reformes_par_defaut_deciles[
-            nom_reforme
-        ][0].calculate("irpp", PERIOD)
+        resultats_de_base = resultats_de_base.set_index("idfoy").sort_index()
+    else:
+        simulation_base_deciles = simulation(PERIOD, DUMMY_DATA, TBS)
+        resultats_de_base = simulation_base_deciles[1]["foyer_fiscal"][["wprm"]]
+        # precalcul cas de base sur la population pour le cache
+        simulations_reformes_par_defaut_deciles = {}
+        for nom_reforme in TBS_DEFAULT:
+            simulations_reformes_par_defaut_deciles[nom_reforme] = simulation(
+                PERIOD, DUMMY_DATA, TBS_DEFAULT[nom_reforme]
+            )
+            resultats_de_base[nom_reforme] = simulations_reformes_par_defaut_deciles[
+                nom_reforme
+            ][0].calculate("irpp", PERIOD)
+
 simulations_reformes_par_defaut_castypes = {}
 for nom_reforme in liste_noms_reformes_sans_apres:
     simulations_reformes_par_defaut_castypes[nom_reforme] = simulation(
