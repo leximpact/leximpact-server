@@ -1,5 +1,6 @@
 from typing import Dict, List, Optional
 import os
+import logging
 
 import pandas  # type: ignore
 
@@ -11,6 +12,8 @@ from Simulation_engine.reforms import IncomeTaxReform
 from Simulation_engine.non_cached_variables import non_cached_variables
 from dotenv import load_dotenv
 
+
+log = logging.getLogger(__name__)
 
 # Config
 
@@ -472,7 +475,13 @@ if not version_beta_sans_simu_pop:
     # Ne change jamais donc pas besoin de fatiguer l'ordi à calculer : ils sont mémorisés en base de données.
     # Test à implémenter : si les résultats de base sont là, ils correspondent aux résultats qu'on calculerait
     # sur le data_path
-    resultats_de_base = from_postgres(nom_table_resultats_base)
+    resultats_de_base = None
+    try:
+        resultats_de_base = from_postgres(nom_table_resultats_base)
+    except ImportError as e:
+        log.error("Echec de la lecture de la base de données PostgreSQL. Est-elle installée et son serveur est-il actif (commande 'pg_ctl') ?")
+        raise e
+
     if (
         resultats_de_base is not None
     ):  # Si la table n'existe pas dans le schéma SQL (par exemple si la variable d'environnement comporte une erreur, ou si on n'a pas mis les données dans la base SQL du serveur), ce sera None et on les calcule nous même
