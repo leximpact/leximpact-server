@@ -1,7 +1,7 @@
 from typing import Dict, List, Optional
+
 import os
 import logging
-
 import pandas  # type: ignore
 
 from openfisca_core.memory_config import MemoryConfig  # type: ignore
@@ -12,8 +12,6 @@ from Simulation_engine.reforms import IncomeTaxReform
 from Simulation_engine.non_cached_variables import non_cached_variables
 from dotenv import load_dotenv
 
-
-log = logging.getLogger(__name__)
 
 # Config
 
@@ -479,7 +477,10 @@ if not version_beta_sans_simu_pop:
     try:
         resultats_de_base = from_postgres(nom_table_resultats_base)
     except ImportError as e:
-        log.error("Echec de la lecture de la base de données PostgreSQL. Est-elle installée et son serveur est-il actif (commande 'pg_ctl') ?")
+        message = '''👹 Échec de la lecture de la base de données PostgreSQL. 
+            Est-elle installée et son serveur est-il actif ?
+            '''
+        logging.error(message)
         raise e
 
     if (
