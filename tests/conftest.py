@@ -1,5 +1,4 @@
 from pytest import fixture  # type: ignore
-from os.path import isfile
 
 from server.app import app  # type: ignore
 from sqlalchemy import create_engine  # type: ignore
@@ -27,8 +26,6 @@ def headers(mimetype: str) -> dict:
 
 @fixture
 def setup():
-    assert isfile(".env"), "Ce test nécessite un fichier de configuration '.env' (voir .env dans README)."
-
     def _setup():
         engine = create_engine(database_url("test"))
         connection = engine.connect()

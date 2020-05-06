@@ -1,4 +1,3 @@
-from os.path import isfile
 from pytest import fixture  # type: ignore
 
 import pandas  # type: ignore
@@ -252,8 +251,6 @@ def requested_simulations():
 
 
 def test_sim_pop_dict_content(reform, requested_simulations):
-    assert isfile(".env"), "Ce test nécessite un fichier de configuration '.env' (voir .env dans README)."
-
     simulation_reform = simulation(PERIOD, DUMMY_DATA, reform)
     comp_result = compare(PERIOD, {"apres": simulation_reform})
     assert "total" in comp_result

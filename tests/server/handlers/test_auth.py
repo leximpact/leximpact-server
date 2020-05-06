@@ -1,4 +1,3 @@
-from os.path import isfile
 from json import dumps, loads
 from pytest import fixture  # type: ignore
 from models import User, create_user, find_user  # type:ignore
@@ -23,7 +22,6 @@ def user(mocker, setup, cleanup, email):
 
 
 def test_auth_login(user, client, headers, mimetype):
-    assert isfile(".env"), "Ce test nécessite un fichier de configuration '.env' (voir .env dans README)."
     data = {"email": user.email}
     response = client.post("auth/login", data=dumps(data), headers=headers)
     assert (
@@ -35,7 +33,6 @@ def test_auth_login(user, client, headers, mimetype):
 
 
 def test_auth_login_when_no_user(client, headers, mimetype):
-    assert isfile(".env"), "Ce test nécessite un fichier de configuration '.env' (voir .env dans README)."
     data = {"email": "richard@leximpact.pop"}
     response = client.post("auth/login", data=dumps(data), headers=headers)
     assert (
@@ -47,7 +44,6 @@ def test_auth_login_when_no_user(client, headers, mimetype):
 
 
 def test_empty(user, client, headers, mimetype):
-    assert isfile(".env"), "Ce test nécessite un fichier de configuration '.env' (voir .env dans README)."
     data = {"email": ""}
     response = client.post("auth/login", data=dumps(data), headers=headers)
     assert (
@@ -59,7 +55,6 @@ def test_empty(user, client, headers, mimetype):
 
 
 def test_cheater(user, client, headers, mimetype):
-    assert isfile(".env"), "Ce test nécessite un fichier de configuration '.env' (voir .env dans README)."
     data = {"email": "jegruge@clb-an.fr@example.com"}
     response = client.post("auth/login", data=dumps(data), headers=headers)
     assert (
