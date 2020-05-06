@@ -468,16 +468,16 @@ print(
     "foyers fiscaux",
 )
 
+resultats_de_base: pandas.DataFrame = None
 if not version_beta_sans_simu_pop:
     # Resultats sur la population du code existant et, lorsqu'il y en a un de configuré, du PLF.
     # Ne change jamais donc pas besoin de fatiguer l'ordi à calculer : ils sont mémorisés en base de données.
     # Test à implémenter : si les résultats de base sont là, ils correspondent aux résultats qu'on calculerait
     # sur le data_path
-    resultats_de_base = None
     try:
         resultats_de_base = from_postgres(nom_table_resultats_base)
     except ImportError as e:
-        message = '''👹 Échec de la lecture de la base de données PostgreSQL. 
+        message = '''👹 Échec de la lecture de la base de données PostgreSQL.
             Est-elle installée et son serveur est-il actif ?
             '''
         logging.error(message)
