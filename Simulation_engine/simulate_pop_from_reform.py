@@ -15,8 +15,10 @@ from dotenv import load_dotenv
 
 # Config
 
+nom_table_resultats_base = None  # type: Optional[str]
 if not os.path.isfile(".env"):
     version_beta_sans_simu_pop = True  # Si pas de .env, on lance sans simpop
+    nom_table_resultats_base = "base_results"
 
 else:
     load_dotenv(dotenv_path=".env")
@@ -25,12 +27,11 @@ else:
         data_path is None
     )  # Si DATA_PATH n'est pas renseigné dans .env, on lance sans simpop
 
-    nom_table_resultats_base = os.getenv("NAME_TABLE_BASE_RESULT")  # type: Optional[str]
+    nom_table_resultats_base = os.getenv("NAME_TABLE_BASE_RESULT")
     if nom_table_resultats_base is None:
         nom_table_resultats_base = "base_results"
 
 adjust_results = True
-resultats_de_base: pandas.DataFrame = None
 
 #  PARTIE CONFIGURABLE PAR L'UTILISATEUR
 
@@ -469,6 +470,7 @@ print(
     "foyers fiscaux",
 )
 
+resultats_de_base: pandas.DataFrame = None
 if not version_beta_sans_simu_pop:
     # Resultats sur la population du code existant et, lorsqu'il y en a un de configuré, du PLF.
     # Ne change jamais donc pas besoin de fatiguer l'ordi à calculer : ils sont mémorisés en base de données.
