@@ -1,0 +1,144 @@
+- name: Un adulte en métropole, 1300€ de revenus nets par mois.
+  period: 2019
+  absolute_error_margin: 0.1
+  input:
+    salaire_imposable: 1300
+  output:
+    irpp: 0
+
+- name: Un adulte et un enfant en métropole, 2600€ de revenus nets par mois.
+  period: 2019
+  absolute_error_margin: 0.1
+  input:
+    individus:
+      Claude:
+        date_naissance: '1985-01-01'
+        salaire_imposable: 2600
+      Ines:
+        date_naissance: '2018-01-01'
+    famille:
+      parents:
+      - Claude
+      enfants:
+      - Ines
+    menage:
+      personne_de_reference:
+      - Claude
+      enfants:
+      - Ines
+    foyer_fiscal:
+      declarants:
+      - Claude
+      personnes_a_charge:
+      - Ines
+  output:
+    irpp: 1297
+
+
+- name: Un couple en métropole, 3200€ de revenus nets par mois.
+  period: 2019
+  absolute_error_margin: 0.1
+  input:
+    individus:
+      Claude:
+        date_naissance: '1985-01-01'
+        salaire_imposable: 3200
+      Camille:
+        date_naissance: '1980-01-01'
+    famille:
+      parents: [Claude, Camille]
+    menage:
+      personne_de_reference:
+      - Claude
+      conjoint:
+      - Camille
+    foyer_fiscal:
+      declarants: [Claude, Camille]
+  output:
+    irpp: 1020
+
+
+- name: Un couple tous deux retraités en métropole, 1300€ de revenus nets par mois.
+  period: 2019
+  absolute_error_margin: 0.1
+  input:
+    individus:
+      Claude:
+        date_naissance: '1945-01-01'
+        salaire_imposable: 1300
+      Camille:
+        date_naissance: '1946-01-01'
+    famille:
+      parents: [Claude, Camille]
+    menage:
+      personne_de_reference:
+      - Claude
+      conjoint:
+      - Camille
+    foyer_fiscal:
+      declarants: [Claude, Camille]
+  output:
+    irpp: 0
+
+
+- name: Un couple et deux enfants en métropole, 4500€ de revenus nets par mois.
+  period: 2019
+  absolute_error_margin: 0.1
+  input:
+    individus:
+      Claude:
+        date_naissance: '1985-01-01'
+        salaire_imposable: 2500
+      Camille:
+        date_naissance: '1980-01-01'
+        salaire_imposable: 2000
+      Ines:
+        date_naissance: '2018-01-01'
+      Neil:
+        date_naissance: '2015-01-01'
+    famille:
+      parents: [Claude, Camille]
+      enfants: [Ines, Neil]
+    menage:
+      personne_de_reference:
+      - Claude
+      conjoint:
+      - Camille
+      enfants: [Ines, Neil]
+    foyer_fiscal:
+      declarants: [Claude, Camille]
+      personnes_a_charge: [Ines, Neil]
+  output:
+    irpp: 1655
+
+
+- name: Un couple et deux enfants à la Réunion, 4500€ de revenus nets par mois.
+  period: 2019
+  absolute_error_margin: 0.1
+  input:
+    individus:
+      Claude:
+        date_naissance: '1985-01-01'
+        salaire_imposable: 2500
+      Camille:
+        date_naissance: '1980-01-01'
+        salaire_imposable: 2000
+      Ines:
+        date_naissance: '2018-01-01'
+      Neil:
+        date_naissance: '2015-01-01'
+    famille:
+      parents: [Claude, Camille]
+      enfants: [Ines, Neil]
+    menage:
+      personne_de_reference:
+      - Claude
+      conjoint:
+      - Camille
+      enfants: [Ines, Neil]
+    foyer_fiscal:
+      declarants: [Claude, Camille]
+      personnes_a_charge: [Ines, Neil]
+      residence_fiscale_reunion: true
+  output:
+    irpp: 773
