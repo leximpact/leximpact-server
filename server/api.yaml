@@ -272,5 +272,18 @@ components:
     dotations:
       type: object
       properties:
-        dotations:
+        reforme:
+          type: object
+          properties:
+            dotations:
+              type: object
+              properties:
+                montants:
+                  type: object
+                  properties:
+                    dgf:
+                      type: number
+                communes:
+                  type: object
+        description_cas_types:
           type: object
