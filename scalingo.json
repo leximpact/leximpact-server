@@ -1,3 +1,6 @@
 {
-    "stack": "scalingo-18"
+    "stack": "scalingo-18",
+    "scripts": {
+        "postdeploy": "curl -H \"Accept: application/json\" -H \"Content-Type: application/json\" -H \"Authorization: Bearer $BEARER_TOKEN\" -X GET https://$SCALINGO_API_URL/v1/apps/$APP/notifiers"
+    }
 }
