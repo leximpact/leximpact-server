@@ -46,24 +46,27 @@
   output:
     salaire_de_base: 
       month:2019-01:12: 19002.42
-    irpp: 0
+    irpp: 0.
 
 
 # 1,1,0,29,0,0,0,0,1985-11-05,0,1200,1,1,1,0,0,0,0,0,0,0,0,2,37987.66,taux_plein,0,0,0,0,1,2,personne_de_reference,FALSE,FALSE
 # 2,2,2,7,7,0,0,6,2007-01-01,0,0,1,1,1,0,3,3,3,0,0,0,0,2,0,taux_plein,0,0,0,0,1,2,enfant,FALSE,FALSE
 - name: Un adulte et un enfant en métropole, 2600€ de revenus nets par mois.
   period: 2019
-  absolute_error_margin: 0.1
+  absolute_error_margin: 5  # euros
   input:
     individus:
       Claude:
         date_naissance: '1985-11-05'
         statut_marital: 2
+        categorie_salarie: prive_non_cadre
         salaire_de_base:
-          year:2019:12: 37987.66
+          month:2019-01:12: 37987.66
         heures_remunerees_volume: 1200
+        taux_csg_remplacement: taux_plein
       Ines:
         date_naissance: '2007-01-01'
+        categorie_salarie: non_pertinent
     famille:
       parents:
       - Claude
@@ -74,14 +77,16 @@
       - Claude
       enfants:
       - Ines
+      zone_apl: zone_2
     foyer_fiscal:
       declarants:
       - Claude
       personnes_a_charge:
       - Ines
   output:
-    rfr: 2600 * 12
-    irpp: 1297
+    revenu_assimile_salaire: [31_200., 0.]  # 2600 * 12
+    nbptr: 1.5
+    irpp: -1297
 
 
 # 3,3,0,41,0,0,0,0,1973-08-30,0,1200,2,2,2,0,0,0,0,0,0,0,0,5,23380.74,taux_plein,0,0,0,0,1,2,personne_de_reference,FALSE,FALSE
