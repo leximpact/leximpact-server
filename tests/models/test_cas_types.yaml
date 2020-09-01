@@ -57,7 +57,8 @@
   input:
     individus:
       Claude:
-        date_naissance: '1985-11-05'
+        # date_naissance: '1985-11-05'
+        age: 29
         statut_marital: 2
         categorie_salarie: prive_non_cadre
         salaire_de_base:
@@ -65,7 +66,8 @@
         heures_remunerees_volume: 1200
         taux_csg_remplacement: taux_plein
       Ines:
-        date_naissance: '2007-01-01'
+        # date_naissance: '2007-01-01'
+        age: 7
         categorie_salarie: non_pertinent
     famille:
       parents:
