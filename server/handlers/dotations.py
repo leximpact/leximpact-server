@@ -85,13 +85,15 @@ class Dotations(object):
             "amendement": {
                 "communes": {
                     "dsr": build_response_dotations("amendement", df_results, "dsr", communes_cas_types=communes_cas_types, strates=strates, prefix_annees_convergence=prefix_annees_convergence, prefix_next_year=prefix_dsr_next_year),
-                    "dsu": build_response_dotations("amendement", df_results, "dsu", communes_cas_types=communes_cas_types, strates=strates)
+                    "dsu": build_response_dotations("amendement", df_results, "dsu", communes_cas_types=communes_cas_types, strates=strates),
+                    "df": build_response_dotations("amendement", df_results, "df", communes_cas_types=communes_cas_types, strates=strates)
                 }
             },
             "base": {
                 "communes": {
                     "dsr": build_response_dotations("base", df_results, "dsr", communes_cas_types=communes_cas_types, strates=strates, prefix_annees_convergence=prefix_annees_convergence, prefix_next_year=prefix_dsr_next_year),
-                    "dsu": build_response_dotations("base", df_results, "dsu", communes_cas_types=communes_cas_types, strates=strates)
+                    "dsu": build_response_dotations("base", df_results, "dsu", communes_cas_types=communes_cas_types, strates=strates),
+                    "df": build_response_dotations("base", df_results, "df", communes_cas_types=communes_cas_types, strates=strates)
                 }
             },
             "baseToAmendement": {
