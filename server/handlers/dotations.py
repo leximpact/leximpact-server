@@ -84,20 +84,20 @@ class Dotations(object):
         simulation_result = {
             "amendement": {
                 "communes": {
-                    "dsr": build_response_dotations("amendement", df_results, prefix_dsr_eligible, prefix_dsr_montant, communes_cas_types=communes_cas_types, strates=strates, prefix_annees_convergence=prefix_annees_convergence, prefix_next_year=prefix_dsr_next_year),
-                    "dsu": build_response_dotations("amendement", df_results, "dsu_eligible_", "dsu_montant_", communes_cas_types=communes_cas_types, strates=strates)
+                    "dsr": build_response_dotations("amendement", df_results, "dsr", communes_cas_types=communes_cas_types, strates=strates, prefix_annees_convergence=prefix_annees_convergence, prefix_next_year=prefix_dsr_next_year),
+                    "dsu": build_response_dotations("amendement", df_results, "dsu", communes_cas_types=communes_cas_types, strates=strates)
                 }
             },
             "base": {
                 "communes": {
-                    "dsr": build_response_dotations("base", df_results, prefix_dsr_eligible, prefix_dsr_montant, communes_cas_types=communes_cas_types, strates=strates, prefix_annees_convergence=prefix_annees_convergence, prefix_next_year=prefix_dsr_next_year),
-                    "dsu": build_response_dotations("base", df_results, "dsu_eligible_", "dsu_montant_", communes_cas_types=communes_cas_types, strates=strates)
+                    "dsr": build_response_dotations("base", df_results, "dsr", communes_cas_types=communes_cas_types, strates=strates, prefix_annees_convergence=prefix_annees_convergence, prefix_next_year=prefix_dsr_next_year),
+                    "dsu": build_response_dotations("base", df_results, "dsu", communes_cas_types=communes_cas_types, strates=strates)
                 }
             },
             "baseToAmendement": {
                 "communes": {
-                    "dsr": build_response_dotations_eligibilites_changements("amendement", df_results, prefix_dsr_eligible),
-                    "dsu": build_response_dotations_eligibilites_changements("amendement", df_results, "dsu_eligible_")
+                    "dsr": build_response_dotations_eligibilites_changements("amendement", df_results, "dsr"),
+                    "dsu": build_response_dotations_eligibilites_changements("amendement", df_results, "dsu")
                 }
             }
         }
