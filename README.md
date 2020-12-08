@@ -83,7 +83,7 @@ pip install --editable .[dev]
 Pour lancer LexImpact-Server, vous devez tout d'abord créer un fichier de configuration `.env`. Le fichier `.env.example` contient un exemple de fichier de configuration `.env`, les champs y apparaissant sont :
 
 - `DATABASE_*` : décrit la configuration de la base de données, leximpact-server doit avoit un accès à une base de données postgres lui permettant de se comporter correctement 
-- `JWT_*` : Décrit les caractéristique du [JSON Web Token](https://jwt.io/). `JWT_SECRET` est une clef privée, `JWT_AUDIENCE` et `JWT_ISSUER` sont vérifiés quand le token est vérifié, mais peuvent être lu par quiconque a un token (car ces derniers ne sont pas chiffrés, mais juste signés par une clef privée)
+- `JWT_*` : Décrit les caractéristique du [JSON Web Token](https://jwt.io/). `JWT_SECRET` est une clef privée, `JWT_AUDIENCE` et `JWT_ISSUER` sont vérifiés quand le token est vérifié, mais peuvent être lus par quiconque a un token (car ces derniers ne sont pas chiffrés, mais juste signés par une clef privée)
 - `MAILJET_*` : données d'authentification pour Mailjet, qui est utilisé pour envoyer les emails contenant les liens de connexion.
 - `POPULATION_TABLE_PATH` :  Les données de population prises en compte dans la simulation du budget de l'État. Peut contenir un nom de fichier (.csv ou .h5) ou un nom de table dans la base SQL. Cette source de données sera importée. Un exemple de fichier fonctionnnant comme source de données situé dans le dépôt est `DCT.csv`. Des fonctions pour calibrer une source de données en fonction des données existantes de la population française sont disponibles dans le fichier sous `./scripts` (utilisés notamment dans le script `TransformData.py`) 
 - `NAME_TABLE_BASE_RESULTS` : Table SQL, générée par le script generate_default_results.csv, qui contient les résultats de la population pour les calculs réutilisés (i.e. code existant et PLF) utilisée pour économiser du temps de calcul.
@@ -125,14 +125,14 @@ Par défaut, seul de résultats à partir de cas-types sont présents dans l'API
 
 Dans le cas où une base de données représentant la population française (non incluse dans la bibliothèque) est présente sur l'ordinateur d'exécution, des agrégats d'impact (budgétaire, redistributif...) seront inclus dans les réponses de l'API.
 
-Cette documentation a vocation à expliquer la marche à suivre à partir du moment où l'usager dispose d'un fichier .h5 ou csv représentatif de la population contenant pour chaque personne physique :
+Cette documentation a vocation à expliquer la marche à suivre à partir du moment où l'usager dispose d'un fichier .h5 ou .csv représentatif de la population contenant pour chaque personne physique :
 - des variables openfisca suffisantes au calcul de l'impôt sur le revenu
 - des identifiants permettant d'identifier les entités (ménage, famille, foyer fiscal) auxquelles appartient chaque personne, et son rôle en leurs seins.
 - une variable wprm, indiquant le poids du foyer fiscal dans la simulation
 
-Un exemple de fichier ayant ce format est le fichier DCT.csv du repo. A ce stade, il n'existe pas de fichier public contenant ces données pour un échantillon représentatif de la population.
+Un exemple de fichier ayant ce format est le fichier DCT.csv du repo. 
 
-Le fichier source peut être transformé par le script Transformdata.py qui fournit un jeu d'utilitaires pour anonymiser et calibrer les données sources.
+A ce stade, il n'existe pas de fichier public contenant ces données pour un échantillon représentatif de la population. Dans ce cas, le fichier source peut être transformé par le script `Transformdata.py` qui fournit un jeu d'utilitaires pour anonymiser et calibrer les données sources.
 
 #### le script Transformdata.py
 
@@ -717,7 +717,7 @@ de l'État aux collectivités locales.
   ```
 - Réponse - contenu du body :
   > Format par défaut :
-  ```
+
 {
     "amendement": {  Décrit les résultats obtenus pour la réforme décrite dans la requête
         "communes": {
@@ -808,7 +808,7 @@ de l'État aux collectivités locales.
 
 ### /search?commune=chaine
 
-renvoie une liste (limitée à 20) des communes contenant la chaîne de caractères demandée en argument comme une sous-chaîne de caractères de leur nom. Chaque élément du tableau des communes contient:
+renvoie une liste (limitée à 20 occurrences) des communes contenant la chaîne de caractères demandée en argument comme une sous-chaîne de caractères de leur nom. Chaque élément du tableau des communes contient:
 
     {
         "code": Code INSEE de la commune,
@@ -847,7 +847,7 @@ La liste des emails est régulièrement mise à jour par une demande auprès du 
     python ./repo/preload.py
 ```
 
-- Etape 3 : Si l'étape 1.5 n'a pas été exécutée, ou si des adresses sont rajoutées à la liste, il est possible de les inclure dans la liste en exécutant dans le CLI Scalingo une ligne à base de 
+- Etape 3 : Si l'étape 1.5 n'a pas été exécutée, ou si des adresses sont rajoutées à la liste, il est possible de les inclure dans la liste en exécutant dans l'interface de commande Scalingo une ligne à base de cette requête SQL : 
 
 ```sql
    INSERT INTO users values ('paul.poule@example.org'),('jean-marie.myriam@example.org');
@@ -897,7 +897,7 @@ Table contenant les résultats sur la population du code existant et du code
 Remplie et créée en lançant le script ./scripts/generate_base_results.py via l'interface Scalingo. Le nom de la table doit correspondre avec la variable d'environnement nommée NAME_TABLE_BASE_RESULT
 
 
-## Insertion/Suppression  du Projet de loi de finances
+## Insertion/Suppression du Projet de loi de finances (PLF)
 
 Le projet de loi de finances est chaque année l'occasion pour le gouvernement et les députés d'amender la loi afférente aux prélèvements obligatoires. LexImpact dispose de la possibilité de faire figurer dans les résultats de l'API (et de l'interface) les impacts des changements prévus par le PLF. 
 
@@ -907,7 +907,7 @@ Le projet de loi de finances est chaque année l'occasion pour le gouvernement e
 
 - Obtenir les éléments de la réforme dans le PLF. En l'absence de réforme majeure de l'impôt sur le revenu, les paramètres étant modifiés seront principalement un accroissement des seuils et plafonds par un facteur fixe correspondant à l'inflation estimée par le législateur.
 
-- Transcrire la réforme en paramètres openfisca (si c'est une réforme paramétrique, sinon il faut déclarer une réforme non paramétrique qui n'est pas expliqué ici parce qu'on ne l'a jamais fait).
+- Transcrire la réforme en paramètres openfisca (si c'est une réforme paramétrique, sinon il faut déclarer une réforme non paramétrique qui n'est pas expliquée ici parce que les réformes structurelles ne sont pas employées par l'application LexImpact).
 
 Exemple : pour le PLF 2021,  un fichier intitulé reformes/reformes_2021.py a été créé dans le repo qui contient
 
@@ -968,7 +968,7 @@ if ACTIVATE_PLF:
 
 ### **Retirer le PLF de leximpact-server**
 
-Après les discussions du PLF, en règle générale, une version potentiellement amendée du PLF sera rentrée dans la loi. A ce moment là, il convient de retirer le PLF de l'interface une fois que la loi a été modifiée pour prendre en compte les novueaux textes. 
+Après les discussions du PLF, en règle générale, une version potentiellement amendée du PLF sera votée. A ce moment là, il convient de retirer le mode PLF de l'interface après modification de la loi pour prendre en compte des nouveaux textes en vigueur. 
 
 ### Impôt sur le revenu : 
 
@@ -976,5 +976,4 @@ supprimer la variable d'environnement "PLF_PATH"
 
 ### dotations :
 
-mettre la variable ACTIVATE_PLF  à False  dans le fichier Simulation_engine/simulate_dotations.py
-
+mettre la variable ACTIVATE_PLF  à False dans le fichier Simulation_engine/simulate_dotations.py
