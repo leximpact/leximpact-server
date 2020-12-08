@@ -484,24 +484,26 @@ de l'État aux collectivités locales.
                 "dsr": {"variation": Augmentation minimale du montant de l'enveloppe de la DSR}
             },
             "communes":{
-                                "eligibilite":{
-                    "popChefLieuMax":Taille maximum DSR bourg-centre si chef lieu de canton,
-                    "popMax":Population maximum d'une commune pour être éligible à la DSR (hors cas spécial bourg-centre)
-                },
-                "bourgCentre":{
+                "dsr": {
                     "eligibilite":{
-                        "partPopCantonMin": Part minimum dans la population du canton pour être éligible,
-                        "exclusion":{
-                            "agglomeration":{
-                                "partPopDepartementMin": Part maximum de l'agglomération dans la population du département pour être éligible à la fraction bourg centre de la DSR,
-                                "popMin": Population maximum de l'agglomération pour être éligible à la fraction bourg centre de la DSR,
-                                "popCommuneMin": Population maximum de la plus grosse commune de l'agglomération pour être éligible à la fraction bourg centre de la DSR
-                            },
-                            "canton":{
-                                "popChefLieuMin": Population maximum du chef-lieu de canton pour être éligible à la fraction bourg-centre sauf bien sûr s'il est bureau centralisateur
-                            },
-                            "potentielFinancier":{
-                                "rapportPotentielFinancierMoyen": Limite de ratio entre le potentiel financier moyen de la commune et le potentiel financier moyen des communes de moins de 10000 habitants
+                        "popChefLieuMax":Taille maximum DSR bourg-centre si chef lieu de canton,
+                        "popMax":Population maximum d'une commune pour être éligible à la DSR (hors cas spécial bourg-centre)
+                    },
+                    "bourgCentre":{
+                        "eligibilite":{
+                            "partPopCantonMin": Part minimum dans la population du canton pour être éligible,
+                            "exclusion":{
+                                "agglomeration":{
+                                    "partPopDepartementMin": Part maximum de l'agglomération dans la population du département pour être éligible à la fraction bourg centre de la DSR,
+                                    "popMin": Population maximum de l'agglomération pour être éligible à la fraction bourg centre de la DSR,
+                                    "popCommuneMin": Population maximum de la plus grosse commune de l'agglomération pour être éligible à la fraction bourg centre de la DSR
+                                },
+                                "canton":{
+                                    "popChefLieuMin": Population maximum du chef-lieu de canton pour être éligible à la fraction bourg-centre sauf bien sûr s'il est bureau centralisateur
+                                },
+                                "potentielFinancier":{
+                                    "rapportPotentielFinancierMoyen": Limite de ratio entre le potentiel financier moyen de la commune et le potentiel financier moyen des communes de moins de 10000 habitants
+                                }
                             }
                         }
                     },
