@@ -83,7 +83,7 @@ pip install --editable .[dev]
 Pour lancer LexImpact-Server, vous devez tout d'abord créer un fichier de configuration `.env`. Le fichier `.env.example` contient un exemple de fichier de configuration `.env`, les champs y apparaissant sont :
 
 - `DATABASE_*` : décrit la configuration de la base de données, leximpact-server doit avoit un accès à une base de données postgres lui permettant de se comporter correctement 
-- `JWT_*` : Décrit les caractéristique du [JSON Web Token](https://jwt.io/). `JWT_SECRET` est une clef privée, `JWT_AUDIENCE` et `JWT_ISSUER` sont vérifiés quand le token est vérifié, mais peut être lu par quiconque a un token (car ces derniers ne sont pas chiffrés, mais juste signés par une clef privée) 
+- `JWT_*` : Décrit les caractéristique du [JSON Web Token](https://jwt.io/). `JWT_SECRET` est une clef privée, `JWT_AUDIENCE` et `JWT_ISSUER` sont vérifiés quand le token est vérifié, mais peuvent être lus par quiconque a un token (car ces derniers ne sont pas chiffrés, mais juste signés par une clef privée)
 - `MAILJET_*` : données d'authentification pour Mailjet, qui est utilisé pour envoyer les emails contenant les liens de connexion.
 - `POPULATION_TABLE_PATH` :  Les données de population prises en compte dans la simulation du budget de l'État. Peut contenir un nom de fichier (.csv ou .h5) ou un nom de table dans la base SQL. Cette source de données sera importée. Un exemple de fichier fonctionnnant comme source de données situé dans le dépôt est `DCT.csv`. Des fonctions pour calibrer une source de données en fonction des données existantes de la population française sont disponibles dans le fichier sous `./scripts` (utilisés notamment dans le script `TransformData.py`) 
 - `NAME_TABLE_BASE_RESULTS` : Table SQL, générée par le script generate_default_results.csv, qui contient les résultats de la population pour les calculs réutilisés (i.e. code existant et PLF) utilisée pour économiser du temps de calcul.
@@ -125,14 +125,25 @@ Par défaut, seul de résultats à partir de cas-types sont présents dans l'API
 
 Dans le cas où une base de données représentant la population française (non incluse dans la bibliothèque) est présente sur l'ordinateur d'exécution, des agrégats d'impact (budgétaire, redistributif...) seront inclus dans les réponses de l'API.
 
-Pour ce faire, modifiez le fichier suivant :
+Cette documentation a vocation à expliquer la marche à suivre à partir du moment où l'usager dispose d'un fichier .h5 ou .csv représentatif de la population contenant pour chaque personne physique :
+- des variables openfisca suffisantes au calcul de l'impôt sur le revenu
+- des identifiants permettant d'identifier les entités (ménage, famille, foyer fiscal) auxquelles appartient chaque personne, et son rôle en leurs seins.
+- une variable wprm, indiquant le poids du foyer fiscal dans la simulation
 
-```python
-# Simulation_engine/simulate_pop_from_reform.py
-version_beta_sans_graph_pop = False  # Au lieu de True par défaut
-```
+Un exemple de fichier ayant ce format est le fichier DCT.csv du repo. 
 
-_**Note :** les instructions supra vous sont fournies à caractère indicatif, l'équipe de développement LexImpact ne disposant pas à ce stade de véritable jeu de données._
+A ce stade, il n'existe pas de fichier public contenant ces données pour un échantillon représentatif de la population. Dans ce cas, le fichier source peut être transformé par le script `Transformdata.py` qui fournit un jeu d'utilitaires pour anonymiser et calibrer les données sources.
+
+#### le script Transformdata.py
+
+4 fonctions sont composées quand ce script est lancé. Chacune des fonctions prend en argument un fichier source, et un fichier destination. Avant de lancer ce script, il convient de modifier les noms initiaux et finaux de fichiers sources pour correspondre à ceux dont l'usager dispose.
+
+* test_useless_variables : retire les colonnes inutiles du fichier source, c'est à dire les colonnes qui n'ont aucun impact sur le résultat des trois variables openfisca "rfr", "irpp" et "nbptr" dans le cadre d'un calcul sur le fichier source. Il est à noter que cet algorithme ne garantit pas que les colonnes ignorées n'auront aucun impact dans aucune situation simulable via LexImpact
+* inflate : ajuste les données pour prendre en compte le temps écoulé entre le moment où les données ont été générées et le moment où la simulation est lancée : les poids des foyers fiscaux sont ajustés pour prendre en compte l'évolution du nombre de foyers fiscaux sur la période , et les variables exprimées en euros sont ajustées de l'inflation. Ces deux variables sont paramétrables dans le code.
+* noise : un bruit gaussien de 2% (paramétrable dans le code) est ajouté sur les variables continues pouvant potentiellement servir à une réidentification.
+* ajustement_h5 : ajuste les revenus des foyers fiscaux par une fonction croissante qui permet à la distribution des revenus finale d'épouser le plus précisément possible une distribution spécifiée par l'utilisateur. Un exemple d'une telle distribution figure dans le repo, estimée en s'appuyant sur des données publiques agrégées publiées par [la DGFiP](https://www.impots.gouv.fr/portail/statistiques) et un rapport du Sénat. 
+
+Le fichier obtenu peut désormais figurer dans la variable d'environnement POPULATION_TABLE_PATH
 
 🎉 Félicitations, vous-êtes en train de réformer le système socio-fiscal français !
 
@@ -256,6 +267,8 @@ Parmi ces itinéraires, deux nécessitent une vérification de l'identité de l'
 
 - Réponse - contenu du body :  La réponse renvoyée sera toujours la même, afin d'éviter de donnner des informations sur la validité des adresses mail : juste une chaîne de caractères qui contient `Bien reçu! Si l'email est valide, nous avons envoyé un mail de confirmation`.
 
+Dans le cas où le mail demandé correspond aux critères de validité (être présent dans la table de données users ou avoir un nom de domaine en clb-an.fr), un email est envoyé via Mailjet (en utilisant les informations d'authentification présentes dans les variables d'environnement) à l'adresse email spécifiée contenant un lien vers le client incluant un token.
+
 ###  /calculate/compare
 
 - Type : POST
@@ -359,12 +372,12 @@ Où `PAC` désigne `personne à charge`.
 - Réponse - contenu du body : 
   - res_brut : Impôts payés par les cas-types : 
     - res_brut.avant : Impôt payé avec le code existant 
-    - res_brut.plf : Impôt payé avec le PLF 
+    - res_brut.plf : Impôt payé avec le PLF (seulement si le PLF est activé, cf partie afférente au PLF)
     - res_brut.apres : Impot payé avec la réforme spécifiée par la requête.
   - nbreParts : Nombre de parts fiscales des cas-types :
     > Le champ `nbreParts` est ajouté à la réponse en version `1.2.0`.
     - nbreParts.avant : Nombre de parts avec le code existant 
-    - nbreParts.plf : Nombre de parts avec le PLF 
+    - nbreParts.plf : Nombre de parts avec le PLF (seulement si le PLF est activé, cf partie afférente au PLF)
     - nbreParts.apres : Nombre de parts avec la réforme spécifiée par la requête.
   - timestamp : Chaîne de caractères reçue dans la requête 
   - total : somme des impôts payés par les cas-types dans les trois scénarios. Inutile pour cette requête. 
@@ -465,45 +478,354 @@ de l'État aux collectivités locales.
 - Type : POST
 - Description :
 - Requête - contenu du body :
-  > En cours de définition. Valeur par défaut :
+  > Description des contenus :
   ```
-  {
-    "reforme": {  # décrit la réforme
-        "dotations": {  # configure les éléments de la réforme des dotations
-            "montants": {"dgf": montant de la DGF},
-            "communes": {
-                "dsr": {},
-                "dsu": {}
+  {   
+    "descriptionCasTypes": tableau d'objets contenant le code commune des variables apparaissant dans l'output comme communes-types,  
+    "reforme":{
+        "dotations":{
+            "montants":{
+                "dgf": montant total de la DGF 
+                "dsu": {"variation": Augmentation minimale du montant de l'enveloppe de la DSU},
+                "dsr": {"variation": Augmentation minimale du montant de l'enveloppe de la DSR}
+            },
+            "communes":{
+                "dsr": {
+                    "eligibilite":{
+                        "popChefLieuMax":Taille maximum DSR bourg-centre si chef lieu de canton,
+                        "popMax":Population maximum d'une commune pour être éligible à la DSR (hors cas spécial bourg-centre)
+                    },
+                    "bourgCentre":{
+                        "eligibilite":{
+                            "partPopCantonMin": Part minimum dans la population du canton pour être éligible,
+                            "exclusion":{
+                                "agglomeration":{
+                                    "partPopDepartementMin": Part maximum de l'agglomération dans la population du département pour être éligible à la fraction bourg centre de la DSR,
+                                    "popMin": Population maximum de l'agglomération pour être éligible à la fraction bourg centre de la DSR,
+                                    "popCommuneMin": Population maximum de la plus grosse commune de l'agglomération pour être éligible à la fraction bourg centre de la DSR
+                                },
+                                "canton":{
+                                    "popChefLieuMin": Population maximum du chef-lieu de canton pour être éligible à la fraction bourg-centre sauf bien sûr s'il est bureau centralisateur
+                                },
+                                "potentielFinancier":{
+                                    "rapportPotentielFinancierMoyen": Limite de ratio entre le potentiel financier moyen de la commune et le potentiel financier moyen des communes de moins de 10000 habitants
+                                }
+                            }
+                        }
+                    },
+                    "attribution":{
+                        "popLimite": Limite prise en compte de la population DGF dans le calcul de la fraction bourg-centre,
+                        "effortFiscalLimite": Limite de prise en compte de l'effort fiscal,
+                        "coefMultiplicateurRevitalisationRurale": Facteur appliqué au score d'attribution quand la commune appartient à une ZRR,
+                        "plafonnementPopulation": Objet décrivant le plafonnement de la population DGF en fonction de la population INSEE
+                    }
+                },
+                "perequation":{
+                    "eligibilite":{
+                        "rapportPotentielFinancier": Limite de ratio entre le potentiel financier moyen de la commune et le potentiel financier moyen des communes de la strate démographique pour l'éligibilité à la fraction péréquation
+                    },
+                    "attribution":{
+                        "repartition":{
+                            "ponderationPotentielFinancier": Part de la DSR (péréquation et cible) répartie en fonction du potentiel financier par habitant,
+                            "ponderationLongueurVoirie": Part de la DSR (péréquation et cible) répartie en fonction de la longueur de voirie,
+                            "ponderationNbreEnfants": Part de la DSR (péréquation et cible) répartie en fonction du nombre d'enfants,
+                            "ponderationPotentielFinancierParHectare": Part de la DSR (péréquation et cible) répartie en fonction du potentiel financier par hectare
+                        }
+                    }
+                },
+                "cible":{
+                    "eligibilite":{
+                        "premieresCommunes": Limite de classement d'indice synthétique pour éligibilité à la fraction cible de la DSR,
+                        "indiceSynthetique":{
+                            "ponderationPotentielFinancier": Part du potentiel financier par habitant dans l'indice synthétique d'éligibilité à la fraction cible de la DSR,
+                            "ponderationRevenu": Part du revenu par habitant dans l'indice synthétique d'éligibilité à la fraction cible de la DSR
+                        }
+                    }
+                }
+            },
+            "dsu":{
+                "eligibilite":{
+                    "popMinSeuilBas": Seuil bas de population minimale pour être éligible à la DSU,
+                    "popMinSeuilHaut": Seuil haut de population minimale pour être éligible à la DSU,
+                    "rapportPotentielFinancier": Limite de ratio entre le potentiel financier moyen de la commune et le potentiel financier moyen des communes de la strate démographique pour l'éligibilité à la DSU,
+                    "pourcentageRangSeuilBas": Part des premières communes situées entre le seuil bas et le seuil haut et classées par indice synthétique décroissant touchant la DSU,
+                    "pourcentageRangSeuilHaut": Part des communes au dessus du seuil haut de population et classées par indice synthétique décroissant touchant la DSU,
+                    "indiceSynthetique":{
+                        "ponderationPotentielFinancier": Part de l'indice synthétique d'éligibilité de la DSU déterminée par le ratio entre les potentiels financiers par habitant de la commune et des communes de la même strate, où les strates sont définies par les seuils de population d'éligibilité à la DSU,
+                        "ponderationLogementsSociaux": Part de l'indice synthétique d'éligibilité de la DSU déterminée par le ratio entre les parts de logements sociaux de la commune et des communes de la même strate, où les strates sont définies par les seuils de population d'éligibilité à la DSU,
+                        "ponderationAideAuLogement": Part de l'indice synthétique d'éligibilité de la DSU déterminée par le ratio entre les aides aux logements par habitant de la commune et des communes de la même strate, où les strates sont définies par les seuils de population d'éligibilité à la DSU,
+                        "ponderationRevenu": Part de l'indice synthétique d'éligibilité de la DSU déterminée par le ratio entre les revenus par habitant de la commune et des communes de la même strate, où les strates sont définies par les seuils de population d'éligibilité à la DSU
+                    }
+                },
+                "attribution":{
+                    "effortFiscalLimite": Limite de prise en compte de l'effort fiscal dans l'attribution de DSU,
+                    "facteurClassementMax": Facteur maximal appliqué au score d'attribution de la DSU en fonction du classement,
+                    "facteurClassementMin": Facteur minimal appliqué au score d'attribution de la DSU en fonction du classement,
+                    "poidsSupplementaireZoneUrbaineSensible": Coefficient multiplicateur affecté au ratio de population en Zone urbaine sensible dans le calcul du score d'attribution de la DSU,
+                    "poidsSupplementaireZoneFrancheUrbaine": Coefficient multiplicateur affecté au ratio de population en Zone franche urbaine dans le calcul du score d'attribution de la DSU,
+                    "augmentationMax": Augmentation maximale annuelle de la DSU pour une commune
+                }
+            }
             }
         }
-    },
-    "strates": [...]
+   },
+   "strates": tableau d'objets décrivant les séparations entre strates de la population qui seront utilisées pour renvoyer les résultats agrégés par strate.
+  }
+  ```
+  > Valeur par défaut :
+  ```
+  {   
+    "descriptionCasTypes":[     
+      {
+         "code":"76384"
+      },
+      {
+         "code":"76214"
+      },
+      {
+         "code":"77186"
+      }
+    ],  
+    "reforme":{
+        "dotations":{
+            "montants":{
+            "dgf":26846874416,
+            "dsu": {"variation": 0},
+            "dsr": {"variation": 0}
+            },
+            "communes":{
+                "dsr":{
+                    "eligibilite":{
+                        "popChefLieuMax":20000,
+                        "popMax":10000
+                    },
+                    "bourgCentre":{
+                        "eligibilite":{
+                            "partPopCantonMin":0.15,
+                            "exclusion":{
+                            "agglomeration":{
+                                "partPopDepartementMin":0.1,
+                                "popMin":250000,
+                                "popCommuneMin":100000
+                            },
+                            "canton":{
+                                "popChefLieuMin":10000
+                            },
+                            "potentielFinancier":{
+                                "rapportPotentielFinancierMoyen":2
+                            }
+                            }
+                        },
+                        "attribution":{
+                            "popLimite":10000,
+                            "effortFiscalLimite":1.2,
+                            "coefMultiplicateurRevitalisationRurale":1.3,
+                            "plafonnementPopulation":{
+                            "0":500,
+                            "100":1000,
+                            "500":2250,
+                            "1500":999999999
+                            }
+                        }
+                    },
+                    "perequation":{
+                        "eligibilite":{
+                            "rapportPotentielFinancier":2
+                        },
+                        "attribution":{
+                            "repartition":{
+                            "ponderationPotentielFinancier":0.3,
+                            "ponderationLongueurVoirie":0.3,
+                            "ponderationNbreEnfants":0.3,
+                            "ponderationPotentielFinancierParHectare":0.1
+                            }
+                        }
+                    },
+                    "cible":{
+                        "eligibilite":{
+                            "premieresCommunes":10000,
+                            "indiceSynthetique":{
+                            "ponderationPotentielFinancier":0.7,
+                            "ponderationRevenu":0.3
+                            }
+                        }
+                    }
+                },
+                "dsu":{
+                    "eligibilite":{
+                        "popMinSeuilBas":5000,
+                        "popMinSeuilHaut":8000,
+                        "rapportPotentielFinancier":2.5,
+                        "pourcentageRangSeuilBas":0.1,
+                        "pourcentageRangSeuilHaut":0.666667,
+                        "indiceSynthetique":{
+                            "ponderationPotentielFinancier":0.3,
+                            "ponderationLogementsSociaux":0.15,
+                            "ponderationAideAuLogement":0.3,
+                            "ponderationRevenu":0.25
+                        }
+                    },
+                    "attribution":{
+                        "effortFiscalLimite":1.3,
+                        "facteurClassementMax":4,
+                        "facteurClassementMin":0.5,
+                        "poidsSupplementaireZoneUrbaineSensible":2,
+                        "poidsSupplementaireZoneFrancheUrbaine":1,
+                        "augmentationMax":4000000
+                    }
+                }
+            }
+        }
+   },
+   "strates":[
+      {
+         "habitants":500
+      },
+      {
+         "habitants":2000
+      },
+      {
+         "habitants":3500
+      },
+      {
+         "habitants":5000
+      },
+      {
+         "habitants":7500
+      },
+      {
+         "habitants":10000
+      },
+      {
+         "habitants":15000
+      },
+      {
+         "habitants":20000
+      },
+      {
+         "habitants":35000
+      },
+      {
+         "habitants":50000
+      },
+      {
+         "habitants":75000
+      },
+      {
+         "habitants":100000
+      },
+      {
+         "habitants":200000
+      },
+      {
+         "habitants":-1
+      }
+   ]
   }
   ```
 - Réponse - contenu du body :
-  > En cours de définition. Valeur par défaut :
-  ```
-  {
-    "amendement": {
+  > Format par défaut :
+
+{
+    "amendement": {  Décrit les résultats obtenus pour la réforme décrite dans la requête
         "communes": {
-            "dsr": {},
-            "dsu": {}
-          }
-      },
-      "base": {
+            "df": {
+                "communes": pour chaque commune des cas type apparaît :
+                    {
+                        "code": code INSEE de la commune,
+                        "dotationParHab": dotation forfaitaire reçue par habitant INSEE
+                    }
+                ],
+                "strates": [
+                    pour chaque strate (spécifiées dans la requête)
+                    {
+                        "dotationMoyenneParHab": dotation forfaitaire reçue par habitant INSEE de la strate démographique,
+                        "habitants": nombre minimal d'habitants INSEE pour qu'une commune appartienne à la strate,
+                        "partDotationTotale": part de la dotation forfaitaire totale attribuée à la strate,
+                        "partPopTotale": part de la population INSEE totale représentée par les communes de la strate,
+                        "potentielFinancierMoyenParHabitant": potentiel financier moyen par habitant au sein de la strate démographique
+                    }
+                ]
+            },
+            "dsr": {
+                "communes": [
+                    {
+                        "code": code INSEE de la commune,
+                        "dotationParHab": dotation de solidarité rurale reçue à terme par habitant INSEE
+                        "dotationParHabAnneeSuivante": dotation de solidarité rurale reçue l'an prochain par la commune,
+                        "dureeAvantTerme": Nombre d'années nécessaire pour que la dotation converge en supposant que la dotation de solidarité rurale reçue à terme ne change pas sur la période,
+                        "eligible": statut d'éligibilité de la commune à au moins une fraction de la dotation de solidarité rurale
+                    }
+                ],
+                "eligibles": nombre de communes éligibles à au moins une fraction de la Dotation de solidarité rurale,
+                "strates": [
+                    pour chaque strate (spécifiées dans la requête)
+                    {
+                        "dotationMoyenneParHab": dotation de solidarité rurale reçue par habitant INSEE de la strate démographique,
+                        "habitants": nombre minimal d'habitants INSEE pour qu'une commune appartienne à la strate,
+                        "partDotationTotale": part de la dotation de solidarité rurale totale attribuée à la strate,
+                        "partPopTotale": part de la population INSEE totale représentée par les communes de la strate,
+                        "potentielFinancierMoyenParHabitant": potentiel financier moyen par habitant au sein de la strate démographique
+                    }
+                ]
+            },
+            "dsu": {
+                "communes": [
+                    {
+                        "code": code INSEE de la commune,
+                        "dotationParHab": dotation de solidarité rurale reçue à terme par habitant INSEE
+                        "eligible": statut d'éligibilité de la commune à au moins une fraction de la dotation de solidarité rurale
+                    }
+                ],
+                "eligibles": nombre de communes éligibles à au moins la Dotation de solidarité urbaine,
+                "strates": [
+                    pour chaque strate (spécifiées dans la requête)
+                    {
+                        "dotationMoyenneParHab": dotation de solidarité urbaine reçue par habitant INSEE de la strate démographique,
+                        "habitants": nombre minimal d'habitants INSEE pour qu'une commune appartienne à la strate,
+                        "partDotationTotale": part de la dotation de solidarité urbaine totale attribuée à la strate,
+                        "partPopTotale": part de la population INSEE totale représentée par les communes de la strate,
+                        "potentielFinancierMoyenParHabitant": potentiel financier moyen par habitant au sein de la strate démographique
+                    }
+                ]
+            }
+        }
+    },
+    "base": { Même contenu que "amendement", mais avec le code existant au lieu de la réforme spécifiée dans la requête
+    },
+    "baseToAmendement": { décrit les changements entre le scénario "base" et le scénario "amendement"
         "communes": {
-            "dsr": {},
-            "dsu": {}
-          }
-      },
-      "baseToAmendement": {
-            "communes": {
-                "dsr": {},
-                "dsu": {}
-          }
-      }
-  }
+            "dsr": {
+                "nouvellementEligibles": nombre de communes nouvellement éligibles à au moins une fraction de la dotation de solidarité rurale,
+                "plusEligibles": nombre de commune perdant leur éligibilité à au moins une fraction de la dotation de solidarité rurale,
+                "toujoursEligibles": nombre de communes restant éligible à au moins une fraction de la dotation de solidarité rurale
+            },
+            "dsu": {
+                "nouvellementEligibles": nombre de communes nouvellement éligibles à la dotation de solidarité urbaine,
+                "plusEligibles": nombre de commune perdant leur éligibilité à la dotation de solidarité urbaine,
+                "toujoursEligibles": nombre de communes restant éligible à la dotation de solidarité urbaine
+            }
+        }
+    },
+    "baseToPlf": { décrit les changements entre le scénario "base" et le scénario "plf" de la même manière que baseToAmendement. Seulement présent quand un PLF a été spécifié
+    },
+    "plf": {Même contenu que "amendement", mais avec le PLF au lieu de la réforme spécifiée dans la requête.  Seulement présent quand un PLF a été spécifié
+    }
+}
   ```
+
+### /search?commune=chaine
+
+renvoie une liste (limitée à 20 occurrences) des communes contenant la chaîne de caractères demandée en argument comme une sous-chaîne de caractères de leur nom. Chaque élément du tableau des communes contient:
+
+    {
+        "code": Code INSEE de la commune,
+        "departement": Département de la commune,
+        "habitants": population INSEE de la commune,
+        "name": nom de la commune en majuscule,
+        "potentielFinancierParHab": potentiel financier de la commune divisée par sa population DGF
+    }
+
 
 ## Base de données
 
@@ -520,7 +842,7 @@ Une base de données [PostgreSQL](https://www.postgresql.org/) doit être instal
 
 Cette table contient les emails des usagers valides.  Elle contient une colonne, "email", qui représente l'email de l'usager.
 
-La liste des emails est déposée et régulièrement updatée par le SSI de l'AN dans le serveur ssian@eig.etalab.gouv.fr
+La liste des emails est régulièrement mise à jour par une demande auprès du SSI ou de parties prenantes de l'institution concernée (Assemblée nationale ou Sénat)
 
 - Etape 1 : concaténer les fichiers  export_deputes.csv et export_employes.csv dans un fichier nommé users.csv  contenant une colonne "email" avec le titre de la colonne en en-tête en haut.
 - Etape 1.5 (optionnelle): Une liste d'adresses supplémentaires est présente dans [ce gdoc](https://docs.google.com/spreadsheets/d/1QSRJJQWn13hYqcPzGsorFOifFGgodLHYnn-nWFDons0/edit#gid=448820835). Cette liste peut être concaténée au fichier créé à l'Etape 1
@@ -533,7 +855,7 @@ La liste des emails est déposée et régulièrement updatée par le SSI de l'AN
     python ./repo/preload.py
 ```
 
-- Etape 3 : Si l'étape 1.5 n'a pas été exécutée, ou si des adresses sont rajoutées à la liste, il est possible de les inclure dans la liste en exécutant une ligne à base de 
+- Etape 3 : Si l'étape 1.5 n'a pas été exécutée, ou si des adresses sont rajoutées à la liste, il est possible de les inclure dans la liste en exécutant dans l'interface de commande Scalingo une ligne à base de cette requête SQL : 
 
 ```sql
    INSERT INTO users values ('paul.poule@example.org'),('jean-marie.myriam@example.org');
@@ -572,7 +894,7 @@ Création / remplissage de la table : la table est créée automatiquement au la
 
 ### **data_erfs**
 
-Fichier contenant les données agrégées de la population française, construites, par exemple, à partir des données de l'ERFS FPR au format openfisca. C'est l'output de la phase transform_data (insérer lien vers la doc de la transformation des données).  
+Fichier contenant les données agrégées de la population française, construites, par exemple, à partir des données de l'ERFS FPR au format openfisca. C'est le fichier décrit plus haut dans la partie Mode agrégats de population.
 
 Le fichier est uploadé dans la base de données, par exemple via preload.py. Le nom de la table dans la base postgresql doit correspondre avec la variable d'environnement nommée `POPULATION_TABLE_PATH`. 
 
@@ -581,3 +903,85 @@ Le fichier est uploadé dans la base de données, par exemple via preload.py. Le
 Table contenant les résultats sur la population du code existant et du code 
 
 Remplie et créée en lançant le script ./scripts/generate_base_results.py via l'interface Scalingo. Le nom de la table doit correspondre avec la variable d'environnement nommée NAME_TABLE_BASE_RESULT
+
+
+## Insertion/Suppression du Projet de loi de finances (PLF)
+
+Le projet de loi de finances est chaque année l'occasion pour le gouvernement et les députés d'amender la loi afférente aux prélèvements obligatoires. LexImpact dispose de la possibilité de faire figurer dans les résultats de l'API (et de l'interface) les impacts des changements prévus par le PLF. 
+
+### **Rajouter le PLF dans leximpact-server**
+
+### Impôt sur le revenu : 
+
+- Obtenir les éléments de la réforme dans le PLF. En l'absence de réforme majeure de l'impôt sur le revenu, les paramètres étant modifiés seront principalement un accroissement des seuils et plafonds par un facteur fixe correspondant à l'inflation estimée par le législateur.
+
+- Transcrire la réforme en paramètres openfisca (si c'est une réforme paramétrique, sinon il faut déclarer une réforme non paramétrique qui n'est pas expliquée ici parce que les réformes structurelles ne sont pas employées par l'application LexImpact).
+
+Exemple : pour le PLF 2021,  un fichier intitulé reformes/reformes_2021.py a été créé dans le repo qui contient
+
+```
+reforme_PLF_2021 = {
+    "impot_revenu": {
+        "bareme": {
+            "seuils": [10084, 25710, 73516, 158122],
+            "taux": [0.11, 0.3, 0.41, 0.45],
+        },
+        "decote": {"seuil_celib": 779, "seuil_couple": 1289, "taux": 0.4525},
+        "plafond_qf": {
+            "abat_dom": {
+                "plaf_GuadMarReu": 2450,
+                "plaf_GuyMay": 4050,
+                "taux_GuadMarReu": 0.3,
+                "taux_GuyMay": 0.4,
+            },
+            "celib": 938,
+            "celib_enf": 3704,
+            "maries_ou_pacses": 1570,
+            "reduc_postplafond": 1565,
+            "reduc_postplafond_veuf": 1748
+        },
+    }
+}
+```
+
+ - Décrire dans les variables d'environnement l'endroit où se trouve la réforme du PLF :
+
+```
+PLF_PATH="reformes.reformePLF_2021.reforme_PLF_2021"
+```
+
+### dotations
+
+- Obtenir les éléments de la réforme dans le PLF. En l'absence de changement majeur, la réforme devrait être limitée au montant d'accroissement minimal des DSU et DSR. Dans ce cas, le PLF apparaît dans le code, également dans le fichier simulate_dotations.py
+
+- Mettre la variable ACTIVATE_PLF  à True  dans le fichier Simulation_engine/simulate_dotations.py  Dans le même fichier, un PLF doit être déclaré en utilisant la syntaxe suivante.
+
+```
+if ACTIVATE_PLF:
+        plf_body_2021 = {
+            "dotations": {
+                "montants" : {
+                    "dsu": {"variation": 90_000_000},
+                    "dsr": {"variation": 90_000_000}
+                }
+                # nothing to update on "communes" key
+            }
+        }
+        # dict_ref = {"amendement" : reforme, "plf": plf}
+        plf = format_reforme_openfisca(plf_body_2021)
+        dict_ref["plf"] = plf
+```
+
+
+
+### **Retirer le PLF de leximpact-server**
+
+Après les discussions du PLF, en règle générale, une version potentiellement amendée du PLF sera votée. A ce moment là, il convient de retirer le mode PLF de l'interface après modification de la loi pour prendre en compte des nouveaux textes en vigueur. 
+
+### Impôt sur le revenu : 
+
+supprimer la variable d'environnement "PLF_PATH"
+
+### dotations :
+
+mettre la variable ACTIVATE_PLF  à False dans le fichier Simulation_engine/simulate_dotations.py
