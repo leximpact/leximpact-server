@@ -47,7 +47,8 @@ def search_commune_by_name(nom_commune):
     res = []
     resultats_maximum = 20
     for commune in load_cached_data():
-        if nom_commune.upper() in commune["name"]:
+        # TODO : add https://www.datacamp.com/community/tutorials/fuzzy-string-python
+        if nom_commune.upper() in commune["name"].upper():
             res += [commune]
         if len(res) >= resultats_maximum:
             break
