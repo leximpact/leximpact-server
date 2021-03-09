@@ -16,7 +16,7 @@ basic_requirements = [
 ]
 
 impot_revenu_requirements = [
-    "openfisca-france >= 48.10.6, < 49.0.0",
+    "openfisca-france >= 51.0.2, < 52.0.0",
 ]
 
 dotations_requirements = [
