@@ -9,7 +9,9 @@ from jwt.exceptions import (  # type: ignore
     DecodeError,
 )
 from datetime import datetime, timedelta
-
+from server.services.mail_services import send_mail
+import logging
+from os import getenv
 
 # Prevention of brute force attacks
 limite_requetes = 20
@@ -39,7 +41,10 @@ def check_user(session, tokenencoded: str) -> Dict[str, Any]:
             count_requests(session, checkjwt.decoded["sub"], since=time_period_request)
             > limite_requetes
         ):
-            create_suspension(session, checkjwt.decoded["sub"])
+            email = checkjwt.decoded["sub"]
+            delay_hours = 1
+            create_suspension(session, email, delay_hours)
+            alert_suspension(email, delay_hours, session)
             resultat["success"] = False
             resultat["error"] = "User is suspended"
             return resultat
@@ -70,3 +75,20 @@ def login_user(session, email: str) -> Optional[JWT]:  # Optional[User]:
         if not user:
             return None
     return encode_jwt(JWT(), email)
+
+
+# Send an email when an account is suspended
+def alert_suspension(email, delay_hours, session):
+    email_team = getenv("MAILJET_SENDER")
+    content_team = f"Bonjour<br/>\n<p>L'utilisateur {email} vient d'être suspendu pour {delay_hours} heure(s).<br/> Il a fait plus de {limite_requetes} requêtes en {time_period_request.total_seconds()/-60} minutes.</p><br/>\nVotre dévoué serveur LexImpact"
+    logging.info(f"BRUTE FORCE STOPPED : {content_team}")
+    send_mail(
+        recipient=email_team,
+        subject="Nouvelle suspension",
+        content=content_team
+    )
+    send_mail(
+        recipient=email,
+        subject="Compte LexImpact suspendu",
+        content=f"Bonjour<br/>\r\n<p>Votre compte LexImpact vient d'être suspendu pour {delay_hours} heure(s) en raison d'une utilisation trop importante.<br/>Ceci est requis pour la protection des données d’enquête vous permettant le calcul par déciles de population.</p>\nMerci de votre compréhension,<br/>\nL'équipe LexImpact"
+    )
