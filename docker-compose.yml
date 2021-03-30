@@ -30,7 +30,8 @@ services:
     - 9079:9001
     volumes:
       - ../leximpact-client:/opt/leximpact-client
-      - /opt/leximpact-client/node_modules
+      - /opt/leximpact-client/node_modules # exclude node_modules from mount : keep it in container
+      - /opt/leximpact-client/build # exclude build from mount : keep it in container
     depends_on:
       - leximpact_server
     restart: unless-stopped
@@ -65,7 +66,7 @@ services:
       - "${PGADMIN_PORT:-5050}:80"
     networks:
       - leximpact_net
-    restart: unless-stopped
+    # restart: unless-stopped # We don't really need it
 
 volumes:
   postgres_data:
