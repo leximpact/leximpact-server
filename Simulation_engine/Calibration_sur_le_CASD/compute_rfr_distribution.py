@@ -1,4 +1,4 @@
-import pandas as pd
+import pandas as pd # type: ignore
 from time import time
 import sys
 
@@ -34,7 +34,7 @@ sumrevs = []
 
 nombre_personnes_tranche = nbff
 min_pt = nbff
-max_poids = 0
+max_poids = 0.0
 
 with open("CalibPOTE.txt", "w") as f:
     f.write("Rk,Nk,Ark\n")
