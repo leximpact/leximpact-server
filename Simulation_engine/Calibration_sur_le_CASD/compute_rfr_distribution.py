@@ -19,9 +19,9 @@ nbff = len(rfrs)
 # sans mettre à mal le SS : il y a >400 FF au dessus de 10M de RFR.
 
 seuils = [0, 1, 1500, 3714, 5000, 7000, 9168, 10000, 12000, 13500,
-            15000, 16000, 17000, 18000, 19221, 21000, 23314, 25000,
-            28000, 30000, 33000, 35000, 37500, 40000, 42500, 45000,
-            47500, 50000, 60000, 75000, 100000]
+          15000, 16000, 17000, 18000, 19221, 21000, 23314, 25000,
+          28000, 30000, 33000, 35000, 37500, 40000, 42500, 45000,
+          47500, 50000, 60000, 75000, 100000]
 
 while seuils[-1] < 20_000_000:
     seuils += [int(seuils[-1] * 1.3)]
@@ -46,7 +46,7 @@ with open("CalibPOTE.txt", "w") as f:
         pops += [nb_above_seuil]
         sumrevs += [sum_above_seuil]
         highest_rfr = (seuil - 1)
-        if len(pops) > = 2:
+        if len(pops) >= 2:
             nombre_personnes_tranche = pops[-2] - pops[-1]
         # print(sumrevs, highest_rfr)
         poids_plus_gros_ff = (highest_rfr / (sumrevs[-2] - sumrevs[-1])) if highest_rfr > 0 else 0
