@@ -2,7 +2,8 @@ from models import to_postgres
 import os
 
 
-tmp_upload_folder = "../../tmp/uploads"
+tmp_upload_folder = os.path.abspath("../../tmp/uploads")
+print(f"Looking into {tmp_upload_folder}")
 files = os.listdir(tmp_upload_folder)
 csv = [f for f in files if f.split(".")[-1] in ("csv", "h5")]
 print("csv/h5 files :", csv)

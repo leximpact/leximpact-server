@@ -9,5 +9,5 @@ if __name__ == "__main__":
     ajustement_h5(
         input_h5="dummy_data_step3.h5",
         output_h5="dummy_data_final.h5",
-        distribution_rfr_population="./Simulation_Engine/Calib/ResFinalCalibSenat.csv",
+        distribution_rfr_population="./Simulation_engine/Calib/ResFinalCalibSenat.csv",
     )
