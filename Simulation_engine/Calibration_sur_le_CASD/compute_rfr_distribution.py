@@ -1,4 +1,4 @@
-import pandas as pd # type: ignore
+import pandas as pd  # type: ignore
 from time import time
 import sys
 
