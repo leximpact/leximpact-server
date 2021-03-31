@@ -13,7 +13,7 @@ uninstall:
 install:
 	@# Install libraries as described in the requirements.txt file.
 	pip install --upgrade pip
-	pip install --editable .[dev] --upgrade
+	pip install --editable .[dev] --upgrade --use-deprecated=legacy-resolver
 
 clean:
 	find . -name '*.pyc' -exec rm \{\} \;
