@@ -6,8 +6,8 @@ basic_requirements = [
     "flask-cors >= 3.0.7, < 3.1.0",
     "gunicorn >= 20.0.0, < 21.0.0",
     "mailjet-rest >= 1.3.3, < 2.0.0",
-    "numpy >= 1.17, <= 1.17.5",
-    "pandas >= 0.24.0, <= 1.2.3",
+    "numpy >= 1.17, < 1.18.0",
+    "pandas >= 0.24.0, < 1.3.0",
     "psycopg2-binary >= 2.8.3, < 3.0.0",
     "pyjwt >= 1.7.1, < 2.0.0",
     "python-dotenv >= 0.10.3, < 1.0.0",
@@ -58,7 +58,7 @@ setup(
             "pytest >= 4.0.0, < 5.0.0",
             "pytest-mock >= 1.10.4, < 1.11.2",
             "snakeviz >= 2.0.0, < 3.0.0",
-            "tables >= 3.4.0, <= 3.6.1",
+            "tables >= 3.4.0, < 3.7.0",
             "xlrd >= 1.0.0, < 2.0.0",  # scripts/convert_dgcl_xlsx_to_csv.py
         ]
     },
