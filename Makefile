@@ -8,12 +8,12 @@ COLOR_STOP='\033[0m'
 uninstall:
 	@# Uninstall all installed libraries of your current Python workspace.
 	@# Handy when testing the instructions described in the README.md file.
-	pip freeze | grep -v "^-e" | xargs pip uninstall -y
+	pip3 freeze | grep -v "^-e" | xargs pip3 uninstall -y
 
 install:
 	@# Install libraries as described in the requirements.txt file.
-	pip install --upgrade pip
-	pip install --editable .[dev] --upgrade
+	pip3 install --upgrade pip
+	pip3 install --editable .[dev] --upgrade
 
 clean:
 	find . -name '*.pyc' -exec rm \{\} \;
@@ -35,17 +35,17 @@ format-style:
 	black `git ls-files | grep "\.py$$"`
 
 migrate:
-	python repo/create_db.py
+	python3 repo/create_db.py
 	alembic -x env=development upgrade head
 	alembic -x env=test upgrade head
 
 run:
-	FLASK_ENV=development PORT=5000 python ./server/app.py
+	FLASK_ENV=development PORT=5000 python3 ./server/app.py
 
 test: clean check-style check-types
 	pytest
 	@echo -e ${COLOR_CYAN}"Comparaison des calculs DGCL et LexImpact..."${COLOR_STOP}
-	python ./tests/dotations/compare_with_dgcl.py
+	python3 ./tests/dotations/compare_with_dgcl.py
 
 stress-server:
 	./tests/server/stress/server.sh
@@ -54,19 +54,19 @@ stress-test:
 	./tests/server/stress/benchmark.sh
 
 simpop:
-	python ./Simulation_engine/simulate_pop_from_reform.py
+	python3 ./Simulation_engine/simulate_pop_from_reform.py
 
 simpop_profile:
-	python -m cProfile -o tests.cprof ./Simulation_engine/simulate_pop_from_reform.py
+	python3 -m cProfile -o tests.cprof ./Simulation_engine/simulate_pop_from_reform.py
 
 simpop_stats:
-	python -c "import pstats; p = pstats.Stats('tests.cprof'); p.strip_dirs().sort_stats('tottime').print_stats(20)"
+	python3 -c "import pstats; p = pstats.Stats('tests.cprof'); p.strip_dirs().sort_stats('tottime').print_stats(20)"
 
 simpop_callers:
-	python -c "import pstats; p = pstats.Stats('tests.cprof'); p.strip_dirs().sort_stats('tottime').print_callers(5)"
+	python3 -c "import pstats; p = pstats.Stats('tests.cprof'); p.strip_dirs().sort_stats('tottime').print_callers(5)"
 
 simpop_callees:
-	python -c "import pstats; p = pstats.Stats('tests.cprof'); p.strip_dirs().sort_stats('tottime').print_callees(5)"
+	python3 -c "import pstats; p = pstats.Stats('tests.cprof'); p.strip_dirs().sort_stats('tottime').print_callees(5)"
 
 simpop_snakeviz:
 	snakeviz tests.cprof

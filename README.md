@@ -20,7 +20,7 @@ Leximpact est constitué de deux parties :
 
 Pour Docker voir [docker/README.md](docker/README.md).
 
-Cette application requiert [Python 3.7](https://www.python.org/downloads/release/python-370/) et [pip](https://pip.pypa.io/en/stable/installing/).
+Cette application requiert au minimum [Python 3.7](https://www.python.org/downloads/release/python-370/) (Python 3.8 fonctionne)  et [pip](https://pip.pypa.io/en/stable/installing/).
 
 Plateformes supportées :
 - distributions GNU/Linux (en particulier Debian and Ubuntu) ;
@@ -28,6 +28,76 @@ Plateformes supportées :
 - Windows;
 
 Pour les autres OS : si vous pouvez exécuter Python et Numpy, l'installation de LexImpact-Server devrait fonctionner.
+
+### Pré-requis
+
+Le serveur d'API nécessite libyaml, dhf5 et PostgreSQL, d'autres moteurs de bases de données peuvent théoriquement être utilisés sans modification.
+
+#### Installation pour MacOS
+
+```sh
+brew install hdf5
+brew install libyaml
+```
+
+#### Installation pour Ubuntu 20.04
+
+```sh
+apt-get -y install libyaml-dev libhdf5-serial-dev postgresql-client python3 make git python3-pip
+```
+
+#### Installation et configuration de PostgreSQL
+
+```sh
+apt install postgresql postgresql-contrib
+```
+
+On cree un user UNIX
+```sh
+adduser leximpact
+```
+
+On crée le même user dans la base avec le droit de creer une base :
+```sh
+sudo -u postgres createuser -d -P leximpact
+```
+
+On crée la base :
+```sh
+sudo -u leximpact createdb -T template0 -E utf8 -O leximpact leximpact
+```
+
+Ce sont ces informations qu'il faudra reprendre dans le fichier .env.
+
+#### Optionnel : reverse proxy
+
+Si vous souhaitez rendre accessible l'API depuis l'extérieur, vous pouvez utiliser la configuration nginx suivante :
+```sh
+nano /etc/nginx/conf.d/leximpactserver.conf
+server {
+    server_name <VOTRE NOM DE DOMAINE>;
+
+    access_log /var/log/nginx/leximpactserver.log combined_time;
+
+    location / {
+        proxy_pass              http://localhost:5000/;
+        proxy_set_header        Host                    $host;
+        proxy_set_header        X-Real-IP               $remote_addr;
+        proxy_set_header        X-Forwarded-Host        $host;
+        proxy_set_header        X-Forwarded-Server      $host;
+        proxy_set_header        X-Forwarded-For         $proxy_add_x_forwarded_for;
+        proxy_set_header        X-Forwarded-Proto       $scheme;
+        proxy_set_header        X-Real-IP               $remote_addr;
+        client_max_body_size    16M;
+    }
+}
+```
+
+#### Optionnel : HTTPS
+
+```sh
+certbot --nginx -d <VOTRE NOM DE DOMAINE>
+```
 
 ### Installez un environnement virtuel
 
