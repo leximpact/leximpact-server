@@ -5,6 +5,7 @@ from flask_cors import CORS as cors  # type: ignore
 import logging
 from dotenv import load_dotenv
 import warnings
+from pandas.core.common import SettingWithCopyWarning  # type: ignore
 
 
 logging.basicConfig(level=logging.INFO)
@@ -18,6 +19,6 @@ if __name__ == "__main__":
     load_dotenv(dotenv_path=".env")
     # Do we have to remove warning ?
     if os.environ.get("IGNORE_WARNING") == "yes":
-        logging.warning('--- All warnings (DeprecationWarning, ...) from packages will be ignored ---')
-        warnings.filterwarnings("ignore")
+        logging.warning('--- All SettingWithCopyWarning warnings from Pandas will be ignored ---')
+        warnings.simplefilter(action="ignore", category=SettingWithCopyWarning)
     con.run(host=os.environ.get("HOST"), port=os.environ.get("PORT"))
