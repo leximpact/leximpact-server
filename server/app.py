@@ -18,5 +18,6 @@ if __name__ == "__main__":
     load_dotenv(dotenv_path=".env")
     # Do we have to remove warning ?
     if os.environ.get("IGNORE_WARNING") == "yes":
+        logging.warning('--- All warnings (DeprecationWarning, ...) from packages will be ignored ---')
         warnings.filterwarnings("ignore")
     con.run(host=os.environ.get("HOST"), port=os.environ.get("PORT"))
