@@ -1,3 +1,13 @@
+---
+
+# The repository has now been moved to https://git.leximpact.dev/leximpact/leximpact-server/
+
+# Pour consulter la dernière version du projet, merci de vous rendre sur https://git.leximpact.dev/leximpact/leximpact-server/
+
+---
+![](http://www.afstrasbourg.eu/sites/default/files/styles/medium/public/actus/image_flyer.jpg)
+---
+
 # LexImpact-Server
 
 ## [EN] Introduction
