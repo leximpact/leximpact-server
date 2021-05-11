@@ -5,7 +5,7 @@
 # Pour consulter la dernière version du projet, merci de vous rendre sur https://git.leximpact.dev/leximpact/leximpact-server/
 
 ---
-![](http://www.afstrasbourg.eu/sites/default/files/styles/medium/public/actus/image_flyer.jpg)
+![](changement-depot-github-gitlab-illustration.png)
 ---
 
 # LexImpact-Server
