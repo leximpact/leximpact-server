@@ -1,3 +1,13 @@
+---
+
+# The repository has now been moved to https://git.leximpact.dev/leximpact/leximpact-server/
+
+# Pour consulter la dernière version du projet, merci de vous rendre sur https://git.leximpact.dev/leximpact/leximpact-server/
+
+---
+![](changement-depot-github-gitlab-illustration-small.png)
+---
+
 # LexImpact-Server
 
 ## [EN] Introduction
