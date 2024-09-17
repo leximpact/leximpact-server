@@ -44,6 +44,7 @@ run:
 
 test: clean check-style check-types
 	pytest
+	openfisca test --country-package openfisca_france tests/models/*yaml
 	@echo -e ${COLOR_CYAN}"Comparaison des calculs DGCL et LexImpact..."${COLOR_STOP}
 	python3 ./tests/dotations/compare_with_dgcl.py
 
